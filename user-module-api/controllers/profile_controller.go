@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"log"
-	"user-module-api/config"
-	"user-module-api/models"
-	"user-module-api/utils"
 
+	"github.com/Shubham7985/user-module-api/config"
+	"github.com/Shubham7985/user-module-api/models"
+	"github.com/Shubham7985/user-module-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -72,16 +72,95 @@ func ListUsers(c *gin.Context) {
 }
 
 func GetUserByID(c *gin.Context) {
-	id := c.Param("id") // URL parameter
+	id := c.Param("id")
 
-	if id == "" {
-		utils.Error(c, 400, "User ID is required")
+	query := `
+		SELECT user_id, first_name, last_name, gender, profession, profile_pic, dob
+		FROM profiles
+		WHERE user_id = $1
+	`
+
+	var profile models.Profile
+
+	err := config.Supabase.QueryRow(query, id).Scan(
+		&profile.UserID,
+		&profile.FirstName,
+		&profile.LastName,
+		&profile.Gender,
+		&profile.Profession,
+		&profile.ProfilePic,
+		&profile.DOB,
+	)
+
+	if err != nil {
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "Profile not found",
+		})
 		return
 	}
 
-	// Baad me yahan Supabase se user fetch hoga
-	utils.Success(c, "User fetched successfully", gin.H{
-		"user_id": id,
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "User profile fetched successfully",
+		"data":    profile,
 	})
+}
 
+func UpdateProfile(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	var profile models.Profile
+	if err := c.ShouldBindJSON(&profile); err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	query := `
+		UPDATE profiles
+		SET
+			first_name = $1,
+			last_name = $2,
+			gender = $3,
+			profession = $4,
+			profile_pic = $5,
+			dob = $6
+		WHERE user_id = $7
+	`
+
+	result, err := config.Supabase.Exec(
+		query,
+		profile.FirstName,
+		profile.LastName,
+		profile.Gender,
+		profile.Profession,
+		profile.ProfilePic,
+		profile.DOB,
+		userID,
+	)
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to update profile",
+		})
+		return
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "Profile not found",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Profile updated successfully",
+	})
 }

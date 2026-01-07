@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"user-module-api/config"
-	"user-module-api/utils"
-
+	"github.com/Shubham7985/user-module-api/config"
+	"github.com/Shubham7985/user-module-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,4 +90,35 @@ func ForgotPassword(c *gin.Context) {
 
 	// 🔹 Demo: normally yahan email send hoga
 	utils.Success(c, "Reset link sent to "+req.Email)
+}
+
+func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+
+	query := `
+		DELETE FROM profiles WHERE user_id = $1;
+	`
+
+	result, err := config.Supabase.Exec(query, id)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to delete user",
+		})
+		return
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "User not found",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "User deleted successfully",
+	})
 }

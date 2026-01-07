@@ -1,9 +1,8 @@
 package routes
 
 import (
-	"user-module-api/controllers"
-	"user-module-api/middlewares"
-
+	"github.com/Shubham7985/user-module-api/controllers"
+	"github.com/Shubham7985/user-module-api/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +22,8 @@ func RegisterRoutes(r *gin.Engine) {
 			user.POST("/profile", controllers.CreateProfile)
 			user.GET("/list", controllers.ListUsers)
 			user.GET("/:id", controllers.GetUserByID) // url param
+			user.DELETE("/:id", controllers.DeleteUser)
+			user.PUT("/update", controllers.UpdateProfile)
 		}
 	}
 }

@@ -3,8 +3,8 @@ package middlewares
 import (
 	"net/http"
 	"strings"
-	"user-module-api/utils"
 
+	"github.com/Shubham7985/user-module-api/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

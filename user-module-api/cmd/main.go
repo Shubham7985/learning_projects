@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"user-module-api/config"
-	"user-module-api/middlewares"
-	"user-module-api/routes"
 
+	"github.com/Shubham7985/user-module-api/config"
+	"github.com/Shubham7985/user-module-api/middlewares"
+	"github.com/Shubham7985/user-module-api/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
